@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace PersonnelManagementSystem.CommandHandler;
+namespace CommandHandler;
 
 /// <summary>
 /// General information messages.

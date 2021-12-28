@@ -1,4 +1,4 @@
-﻿namespace PersonnelManagementSystem.Employment.Interfaces;
+﻿namespace Employment.Interfaces;
 
 /// <summary>
 /// First level position and base class for management.

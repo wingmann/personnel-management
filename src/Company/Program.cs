@@ -1,12 +1,12 @@
-﻿using PersonnelManagementSystem.Company.Interfaces;
+﻿using Company.Interfaces;
 
-namespace PersonnelManagementSystem.Company;
+namespace Company;
 
 internal static class Program
 {
     private static void Main(string[] args)
     {
-        ICompany company = new Company();
+        ICompany company = new global::Company.Company();
         company.Startup();
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace PersonnelManagementSystem.Employment;
+﻿namespace Employment;
 
 /// <summary>
 /// Represents employee position.

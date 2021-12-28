@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using PersonnelManagementSystem.Employment.Interfaces;
+using Employment.Interfaces;
 
-namespace PersonnelManagementSystem.Employment;
+namespace Employment;
 
 /// <summary>
 /// Employment manager in company.
@@ -21,23 +21,22 @@ public sealed class StaffManager : IStaffManager
     /// <summary>
     /// Add new employee.
     /// </summary>
-    /// <param name="firstName">First name.</param>
-    /// <param name="lastName">Last name.</param>
+    /// <param name="person">Full name.</param>
     /// <param name="id">Unique identifier.</param>
     /// <param name="dateOfEmployment">Date of employment.</param>
     /// <param name="type">Type of employee.</param>
-    public void Add(string firstName, string lastName, string id, DateTime dateOfEmployment, EmployeeType type)
+    public void Add(Person person, string id, DateTime dateOfEmployment, EmployeeType type)
     {
         switch (type)
         {
             case EmployeeType.Employee:
-                Employees.Add(new Employee(firstName, lastName, id, dateOfEmployment));
+                Employees.Add(new Employee(person, id, dateOfEmployment));
                 break;
             case EmployeeType.Sales:
-                Employees.Add(new Sales(firstName, lastName, id, dateOfEmployment));
+                Employees.Add(new Sales(person, id, dateOfEmployment));
                 break;
             case EmployeeType.Manager:
-                Employees.Add(new Manager(firstName, lastName, id, dateOfEmployment));
+                Employees.Add(new Manager(person, id, dateOfEmployment));
                 break;
         }
     }
@@ -45,37 +44,36 @@ public sealed class StaffManager : IStaffManager
     /// <summary>
     /// Add subordinate to management position.
     /// </summary>
-    /// <param name="firstName">First name.</param>
-    /// <param name="lastName">Last name.</param>
+    /// <param name="person">Full name.</param>
     /// <param name="superiorId">Superior person identifier.</param>
     /// <param name="id">Unique identifier.</param>
     /// <param name="dateOfEmployment">Date of employment.</param>
     /// <param name="type">Type of new employee.</param>
     /// <returns>Operation status.</returns>
-    public bool TryAddSubordinate(string firstName, string lastName, string id, DateTime dateOfEmployment, string superiorId, EmployeeType type)
+    public bool TryAddSubordinate(Person person, string id, DateTime dateOfEmployment, string superiorId, EmployeeType type)
     {
         foreach (var employee in Employees)
         {
             switch (employee)
             {
                 case Sales sales when employee.Id == superiorId && type is EmployeeType.Employee:
-                    sales.Add(firstName, lastName, id, dateOfEmployment, type);
+                    sales.Add(person, id, dateOfEmployment, type);
                     return true;
                 case Manager manager when employee.Id == superiorId:
                 {
                     switch (type)
                     {
                         case EmployeeType.Employee:
-                            manager.Add(firstName, lastName, id, dateOfEmployment, type);
+                            manager.Add(person, id, dateOfEmployment, type);
                             return true;
                         case EmployeeType.Sales:
-                            manager.Add(firstName, lastName, id, dateOfEmployment, type);
+                            manager.Add(person, id, dateOfEmployment, type);
                             return true;
                     }
 
                     break;
                 }
-                case Manager manager when manager.TryAddToInternal(firstName, lastName, id, dateOfEmployment, superiorId, type):
+                case Manager manager when manager.TryAddToInternal(person, id, dateOfEmployment, superiorId, type):
                     return true;
             }
         }

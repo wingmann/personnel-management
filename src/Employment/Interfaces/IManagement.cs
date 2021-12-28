@@ -1,4 +1,4 @@
-﻿namespace PersonnelManagementSystem.Employment.Interfaces;
+﻿namespace Employment.Interfaces;
 
 /// <summary>
 /// Management representation.
@@ -21,12 +21,11 @@ public interface IManagement
     /// <summary>
     /// Add new subordinate to list.
     /// </summary>
-    /// <param name="firstName">First name.</param>
-    /// <param name="lastName">Last name.</param>
+    /// <param name="person">Full name.</param>
     /// <param name="id">Unique identifier.</param>
     /// <param name="dateOfEmployment">Date of employment.</param>
     /// <param name="type">Type of employee.</param>
-    void Add(string firstName, string lastName, string id, DateTime dateOfEmployment, EmployeeType type);
+    void Add(Person person, string id, DateTime dateOfEmployment, EmployeeType type);
 
     /// <summary>
     /// Remove employee from subordinate list.

@@ -1,4 +1,4 @@
-﻿namespace PersonnelManagementSystem.CommandHandler;
+﻿namespace CommandHandler;
 
 /// <summary>
 /// Represents operation type.

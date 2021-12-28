@@ -1,266 +1,283 @@
-using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using NUnit.Framework;
 
-namespace PersonnelManagementSystem.Employment.Tests;
+namespace Employment.Tests;
 
 public class Tests
 {
-    [SetUp]
-    public void Setup()
-    {
-    }
-
     [Test]
-    public void CheckForBaseSalary()
+    public void CheckForBaseEmployeeSalary()
     {
-        Employee employee1 = new("John", "Doe", Guid.NewGuid().ToString(), DateTime.Today);
+        Employee employee1 = new(new Person("John", "Doe"), Guid.NewGuid().ToString(), DateTime.Today);
         Assert.AreEqual(3000M, employee1.BaseSalary);
-
-        Employee employee2 = new Sales("John", "Doe", Guid.NewGuid().ToString(), DateTime.Today);
-        Assert.AreEqual(4500M, employee2.BaseSalary);
-
-        Employee employee3 = new Manager("John", "Doe", Guid.NewGuid().ToString(), DateTime.Today);
-        Assert.AreEqual(7000M, employee3.BaseSalary);
+    }
+    
+    [Test]
+    public void CheckForBaseSalesSalary()
+    {
+        Employee sales = new Sales(new Person("John", "Doe"), Guid.NewGuid().ToString(), DateTime.Today);
+        Assert.AreEqual(4500M, sales.BaseSalary);
+    }
+    
+    [Test]
+    public void CheckForBaseManagerSalary()
+    {
+        Employee manager = new Manager(new Person("John", "Doe"), Guid.NewGuid().ToString(), DateTime.Today);
+        Assert.AreEqual(7000M, manager.BaseSalary);
     }
 
     [Test]
-    public void CheckForSalaryCalculation()
+    public void CheckForEmployeeSalaryCalculation()
     {
-        Employee employee1 = new("John", "Doe", Guid.NewGuid().ToString(), new DateTime(2019, 12, 22));
-        Assert.AreEqual(3270M, employee1.Salary());
+        // Arrange.
+        Person person = new("John", "Doe");
+        var id = Guid.NewGuid().ToString();
+        var dateOfEmployment = new DateTime(2019, 12, 22);
 
-        Employee employee2 = new Sales("John", "Doe", Guid.NewGuid().ToString(), new DateTime(2019, 12, 22));
-        Assert.AreEqual(5175M, employee2.Salary());
+        Employee employee = new(person, id, dateOfEmployment);
 
-        Employee employee3 = new Manager("John", "Doe", Guid.NewGuid().ToString(), new DateTime(2019, 12, 22));
-        Assert.AreEqual(7210M, employee3.Salary());
+        // Act.
+        var salary = employee.Salary();
+
+        // Assert;
+        Assert.AreEqual(3270M, salary);
     }
+    
+    [Test]
+    public void CheckForSalesSalaryCalculation()
+    {
+        // Arrange.
+        Person person = new("John", "Doe");
+        var id = Guid.NewGuid().ToString();
+        var dateOfEmployment = new DateTime(2019, 12, 22);
 
-    private string GenerateId() => Guid.NewGuid().ToString();
+        Employee employee = new Sales(person, id, dateOfEmployment);
+
+        // Act.
+        var salary = employee.Salary();
+
+        // Assert;
+        Assert.AreEqual(5175M, salary);
+    }
+    
+    [Test]
+    public void CheckForManagerSalaryCalculation()
+    {
+        // Arrange.
+        Person person = new("John", "Doe");
+        var id = Guid.NewGuid().ToString();
+        var dateOfEmployment = new DateTime(2019, 12, 22);
+
+        Employee employee = new Manager(person, id, dateOfEmployment);
+
+        // Act.
+        var salary = employee.Salary();
+
+        // Assert;
+        Assert.AreEqual(7210M, salary);
+    }
+    
+    private static string GenerateId() => Guid.NewGuid().ToString();
 
     [Test]
     public void CheckForSalary()
     {
+        // Arrange.
         StaffManager staffManager = new();
+        Person person = new("John", "Doe");
 
-        // Employees.
-        var employeeId1 = GenerateId();
-        var employeeDateOfEmployment1 = DateTime.Today;
+        List<(string, DateTime)> employees = new()
+        {
+            (GenerateId(), DateTime.Now),
+            (GenerateId(), new DateTime(2019, 12, 5)),
+            (GenerateId(), new DateTime(2019, 2, 21)),
+            (GenerateId(), new DateTime(2021, 6, 9)),
+            (GenerateId(), new DateTime(2020, 5, 2)),
+            (GenerateId(), new DateTime(2021, 5, 2)),
+            (GenerateId(), new DateTime(2021, 5, 7))
+        };
 
-        var employeeId2 = GenerateId();
-        var employeeDateOfEmployment2 = new DateTime(2019, 12, 5);
+        List<(string, DateTime)> sales = new()
+        {
+            (GenerateId(), new DateTime(2016, 12, 5)),
+            (GenerateId(), new DateTime(2017, 12, 5)),
+            (GenerateId(), new DateTime(2018, 3, 2))
+        };
 
-        var employeeId3 = GenerateId();
-        var employeeDateOfEmployment3 = new DateTime(2019, 2, 21);
+        List<(string, DateTime)> managers = new()
+        {
+            (GenerateId(), new DateTime(2017, 9, 5)),
+            (GenerateId(), new DateTime(2016, 12, 5))
+        };
+        
+        // Act.
+        staffManager.Add(person, employees[0].Item1, employees[0].Item2, EmployeeType.Employee);
+        staffManager.Add(person, employees[1].Item1, employees[1].Item2, EmployeeType.Employee);
 
-        var employeeId4 = GenerateId();
-        var employeeDateOfEmployment4 = new DateTime(2021, 6, 9);
+        staffManager.Add(person, sales[0].Item1, sales[0].Item2, EmployeeType.Sales);
+        staffManager.Add(person, sales[1].Item1, sales[1].Item2, EmployeeType.Sales);
+        staffManager.TryAddSubordinate(person, employees[2].Item1, employees[2].Item2, sales[1].Item1, EmployeeType.Employee);
 
-        var employeeId5 = GenerateId();
-        var employeeDateOfEmployment5 = new DateTime(2020, 5, 2);
+        staffManager.Add(person, managers[0].Item1, managers[0].Item2, EmployeeType.Manager);
+        staffManager.TryAddSubordinate(person, employees[2].Item1, employees[2].Item2, managers[0].Item1, EmployeeType.Employee);
+        staffManager.TryAddSubordinate(person, sales[2].Item1, sales[2].Item2, managers[0].Item1, EmployeeType.Sales);
+        staffManager.TryAddSubordinate(person, employees[4].Item1, employees[4].Item2, sales[2].Item1, EmployeeType.Employee);
+        staffManager.TryAddSubordinate(person, employees[5].Item1, employees[5].Item2, sales[2].Item1, EmployeeType.Employee);
 
-        var employeeId6 = GenerateId();
-        var employeeDateOfEmployment6 = new DateTime(2021, 5, 2);
+        staffManager.Add(person, managers[1].Item1, managers[1].Item2, EmployeeType.Manager);
+        staffManager.TryAddSubordinate(person, employees[6].Item1, employees[6].Item2, managers[1].Item1, EmployeeType.Employee);
 
-        var employeeId7 = GenerateId();
-        var employeeDateOfEmployment7 = new DateTime(2021, 5, 7);
-
-        // Saleses.
-        var salesId1 = GenerateId();
-        var salesDateOfEmployment1 = new DateTime(2016, 12, 5);
-
-        var salesId2 = GenerateId();
-        var salesDateOfEmployment2 = new DateTime(2017, 12, 5);
-
-        var salesId3 = GenerateId();
-        var salesDateOfEmployment3 = new DateTime(2018, 3, 2);
-
-        // Managers.
-        var managerId1 = GenerateId();
-        var managerDateOfEmployment1 = new DateTime(2017, 9, 5);
-
-        var managerId2 = GenerateId();
-        var managerDateOfEmployment2 = new DateTime(2016, 12, 5);
-
-        staffManager.Add("John", "Doe", employeeId1, employeeDateOfEmployment1, EmployeeType.Employee);
-        staffManager.Add("John", "Doe", employeeId2, employeeDateOfEmployment2, EmployeeType.Employee);
-
-        staffManager.Add("John", "Doe", salesId1, salesDateOfEmployment1, EmployeeType.Sales);
-        staffManager.Add("John", "Doe", salesId2, salesDateOfEmployment2, EmployeeType.Sales);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId3, employeeDateOfEmployment3, employeeId2, EmployeeType.Employee);
-
-        staffManager.Add("John", "Doe", managerId1, managerDateOfEmployment1, EmployeeType.Manager);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId4, employeeDateOfEmployment4, managerId1, EmployeeType.Employee);
-        staffManager.TryAddSubordinate("John", "Doe", salesId3, salesDateOfEmployment3, managerId1, EmployeeType.Sales);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId5, employeeDateOfEmployment5, salesId3, EmployeeType.Employee);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId6, employeeDateOfEmployment6, salesId3, EmployeeType.Employee);
-
-        staffManager.Add("John", "Doe", managerId2, managerDateOfEmployment2, EmployeeType.Manager);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId7, employeeDateOfEmployment7, managerId2, EmployeeType.Employee);
-
-        Assert.AreEqual(3000M, staffManager.GetSalary(employeeId1));
-        Assert.AreEqual(3270M, staffManager.GetSalary(employeeId2));
-        //Assert.AreEqual(0M, staffManager.GetSalary(employeeId3));
-        Assert.AreEqual(3000M, staffManager.GetSalary(employeeId4));
-        Assert.AreEqual(3090M, staffManager.GetSalary(employeeId5));
-        Assert.AreEqual(3000M, staffManager.GetSalary(employeeId6));
-        Assert.AreEqual(3000M, staffManager.GetSalary(employeeId7));
-
-        Assert.AreEqual(7875M, staffManager.GetSalary(salesId1));
-        Assert.AreEqual(7875M, staffManager.GetSalary(salesId2));
-        Assert.AreEqual(6105.45M, staffManager.GetSalary(salesId3));
-
-        Assert.AreEqual(8077.31635, staffManager.GetSalary(managerId1));
-        Assert.AreEqual(9179M, staffManager.GetSalary(managerId2));
-
-        Assert.AreEqual(57471.76635M, staffManager.GetAllSalary());
+        // Assert.
+        Assert.AreEqual(3000M, staffManager.GetSalary(employees[0].Item1));
+        Assert.AreEqual(3270M, staffManager.GetSalary(employees[1].Item1));
+        Assert.AreEqual(3090M, staffManager.GetSalary(employees[4].Item1));
+        Assert.AreEqual(7875M, staffManager.GetSalary(sales[0].Item1));
+        Assert.AreEqual(7891.35M, staffManager.GetSalary(sales[1].Item1));
+        Assert.AreEqual(6105.45M, staffManager.GetSalary(sales[2].Item1));
+        Assert.AreEqual(8078.12635M, staffManager.GetSalary(managers[0].Item1));
+        Assert.AreEqual(9179M, staffManager.GetSalary(managers[1].Item1));
+        Assert.AreEqual(61028.92635M, staffManager.GetAllSalary());
     }
 
+    private static List<string> GetIds(int count)
+    {
+        List<string> list = new();
+
+        for (var i = 0; i < count; i++)
+        {
+            list.Add(GenerateId());
+        }
+
+        return list;
+    }
+    
     [Test]
     public void CheckForCorrectAddEmployeesAndSubordinates()
     {
+        // Arrange.
         StaffManager staffManager = new();
+        Person person = new("John", "Doe");
+        
+        var employeeIds = GetIds(7);
+        var salesIds = GetIds(3);
+        var managerIds= GetIds(2);
+        
+        // Act.
+        staffManager.Add(person, employeeIds[0], DateTime.Today, EmployeeType.Employee);
+        staffManager.Add(person, employeeIds[1], DateTime.Today, EmployeeType.Employee);
 
-        // Employees.
-        var employeeId1 = GenerateId();
-        var employeeId2 = GenerateId();
-        var employeeId3 = GenerateId();
-        var employeeId4 = GenerateId();
-        var employeeId5 = GenerateId();
-        var employeeId6 = GenerateId();
-        var employeeId7 = GenerateId();
+        staffManager.Add(person, salesIds[0], DateTime.Today, EmployeeType.Sales);
+        staffManager.Add(person, salesIds[1], DateTime.Today, EmployeeType.Sales);
 
-        // Saleses.
-        var salesId1 = GenerateId();
-        var salesId2 = GenerateId();
-        var salesId3 = GenerateId();
+        // Add impossible employee.
+        var result1 = staffManager.TryAddSubordinate(person, employeeIds[2], DateTime.Today, employeeIds[1], EmployeeType.Employee);
 
-        // Managers.
-        var managerId1 = GenerateId();
-        var managerId2 = GenerateId();
+        // Add impossible employee.
+        var result2 = staffManager.TryAddSubordinate(person, GenerateId(), DateTime.Today, employeeIds[1], EmployeeType.Sales);
 
-        staffManager.Add("John", "Doe", employeeId1, DateTime.Today, EmployeeType.Employee);
-        staffManager.Add("John", "Doe", employeeId2, DateTime.Today, EmployeeType.Employee);
+        staffManager.Add(person, managerIds[0], DateTime.Today, EmployeeType.Manager);
+        var result3 = staffManager.TryAddSubordinate(person, employeeIds[3], DateTime.Today, managerIds[0], EmployeeType.Employee);
 
-        staffManager.Add("John", "Doe", salesId1, DateTime.Today, EmployeeType.Sales);
-        staffManager.Add("John", "Doe", salesId2, DateTime.Today, EmployeeType.Sales);
+        var result4 = staffManager.TryAddSubordinate(person, salesIds[2], DateTime.Today, managerIds[0], EmployeeType.Sales);
+        
+        // Check for add impossible subordinate.
+        var result5 = staffManager.TryAddSubordinate(person, GenerateId(), DateTime.Today, employeeIds[1], EmployeeType.Manager);
 
-        // Add imposible employee.
-        var result1 = staffManager.TryAddSubordinate("John", "Doe", employeeId3, DateTime.Today, employeeId2, EmployeeType.Employee);
+        var result6 = staffManager.TryAddSubordinate(person, employeeIds[4], DateTime.Today, salesIds[2], EmployeeType.Employee);
+
+        staffManager.TryAddSubordinate(person, employeeIds[5], DateTime.Today, salesIds[2], EmployeeType.Employee);
+
+        staffManager.Add(person, managerIds[1], DateTime.Today, EmployeeType.Manager);
+        staffManager.TryAddSubordinate(person, employeeIds[6], DateTime.Today, managerIds[1], EmployeeType.Employee);
+
+        var employeeCount = staffManager.EmployeeCount();
+        
+        // Assert.
         Assert.IsFalse(result1);
-
-        Assert.AreEqual(4, staffManager.EmployeeCount());
-
-        // Add imposible employee.
-        var result2 = staffManager.TryAddSubordinate("John", "Doe", GenerateId(), DateTime.Today, employeeId2, EmployeeType.Sales);
         Assert.IsFalse(result2);
-
-        Assert.AreEqual(4, staffManager.EmployeeCount());
-
-        staffManager.Add("John", "Doe", managerId1, DateTime.Today, EmployeeType.Manager);
-        var result3 = staffManager.TryAddSubordinate("John", "Doe", employeeId4, DateTime.Today, managerId1, EmployeeType.Employee);
-        Assert.IsTrue(result3);
-
-        var result4 = staffManager.TryAddSubordinate("John", "Doe", salesId3, DateTime.Today, managerId1, EmployeeType.Sales);
-        Assert.IsTrue(result4);
-
-        // Check for add imposimble subordinate.
-        var result5 = staffManager.TryAddSubordinate("John", "Doe", GenerateId(), DateTime.Today, employeeId2, EmployeeType.Manager);
         Assert.IsFalse(result5);
+        
+        Assert.IsTrue(result3 && result4 && result6);
 
-        var result6 = staffManager.TryAddSubordinate("John", "Doe", employeeId5, DateTime.Today, salesId3, EmployeeType.Employee);
-        Assert.IsTrue(result6);
-
-        staffManager.TryAddSubordinate("John", "Doe", employeeId6, DateTime.Today, salesId3, EmployeeType.Employee);
-
-        staffManager.Add("John", "Doe", managerId2, DateTime.Today, EmployeeType.Manager);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId7, DateTime.Today, managerId2, EmployeeType.Employee);
-
-        Assert.AreEqual(11, staffManager.EmployeeCount());
+        Assert.AreEqual(11, employeeCount);
     }
 
     [Test]
     public void CheckForCorrectRemoveEmployeesAndSubordinates()
     {
+        // Arrange.
         StaffManager staffManager = new();
+        Person person = new("John", "Doe");
 
-        // Employees.
-        var employeeId1 = GenerateId();
-        var employeeDateOfEmployment1 = DateTime.Today;
+        List<(string, DateTime)> employees = new()
+        {
+            (GenerateId(), DateTime.Today),
+            (GenerateId(), new DateTime(2019, 12, 5)),
+            (GenerateId(), new DateTime(2019, 2, 21)),
+            (GenerateId(), new DateTime(2021, 6, 9)),
+            (GenerateId(), new DateTime(2020, 5, 2)),
+            (GenerateId(), new DateTime(2021, 5, 2)),
+            (GenerateId(), new DateTime(2021, 5, 7))
+        };
 
-        var employeeId2 = GenerateId();
-        var employeeDateOfEmployment2 = new DateTime(2019, 12, 5);
+        List<(string, DateTime)> sales = new()
+        {
+            (GenerateId(), new DateTime(2016, 12, 5)),
+            (GenerateId(), new DateTime(2017, 12, 5)),
+            (GenerateId(), new DateTime(2018, 3, 2))
+        };
+        
+        List<(string, DateTime)> managers = new()
+        {
+            (GenerateId(), new DateTime(2017, 9, 5)),
+            (GenerateId(), new DateTime(2016, 12, 5))
+        };
+        
+        // Act.
+        staffManager.Add(person, employees[0].Item1, employees[0].Item2, EmployeeType.Employee);
+        staffManager.Add(person, employees[1].Item1, employees[1].Item2, EmployeeType.Employee);
+        staffManager.Add(person, sales[0].Item1, sales[0].Item2, EmployeeType.Sales);
 
-        var employeeId3 = GenerateId();
-        var employeeDateOfEmployment3 = new DateTime(2019, 2, 21);
+        var count1 = staffManager.EmployeeCount();
 
-        var employeeId4 = GenerateId();
-        var employeeDateOfEmployment4 = new DateTime(2021, 6, 9);
+        staffManager.Add(person, sales[1].Item1, sales[1].Item2, EmployeeType.Sales);
+        staffManager.TryAddSubordinate(person, employees[2].Item1, employees[2].Item2, sales[1].Item1, EmployeeType.Employee);
 
-        var employeeId5 = GenerateId();
-        var employeeDateOfEmployment5 = new DateTime(2020, 5, 2);
+        var count2 = staffManager.EmployeeCount();
 
-        var employeeId6 = GenerateId();
-        var employeeDateOfEmployment6 = new DateTime(2021, 5, 2);
+        staffManager.Add(person, managers[0].Item1, managers[0].Item2, EmployeeType.Manager);
+        staffManager.TryAddSubordinate(person, employees[3].Item1, employees[3].Item2, managers[0].Item1, EmployeeType.Employee);
+        staffManager.TryAddSubordinate(person, sales[2].Item1, sales[2].Item2, managers[0].Item1, EmployeeType.Sales);
+        staffManager.TryAddSubordinate(person, employees[4].Item1, employees[4].Item2, sales[2].Item1, EmployeeType.Employee);
+        staffManager.TryAddSubordinate(person, employees[5].Item1, employees[5].Item2, sales[2].Item1, EmployeeType.Employee);
 
-        var employeeId7 = GenerateId();
-        var employeeDateOfEmployment7 = new DateTime(2021, 5, 7);
+        var count3 = staffManager.EmployeeCount();
 
-        // Saleses.
-        var salesId1 = GenerateId();
-        var salesDateOfEmployment1 = new DateTime(2016, 12, 5);
+        staffManager.Add(person, managers[1].Item1, managers[1].Item2, EmployeeType.Manager);
+        staffManager.TryAddSubordinate(person, employees[6].Item1, employees[6].Item2, managers[1].Item1, EmployeeType.Employee);
 
-        var salesId2 = GenerateId();
-        var salesDateOfEmployment2 = new DateTime(2017, 12, 5);
-
-        var salesId3 = GenerateId();
-        var salesDateOfEmployment3 = new DateTime(2018, 3, 2);
-
-        // Managers.
-        var managerId1 = GenerateId();
-        var managerDateOfEmployment1 = new DateTime(2017, 9, 5);
-
-        var managerId2 = GenerateId();
-        var managerDateOfEmployment2 = new DateTime(2016, 12, 5);
-
-        staffManager.Add("John", "Doe", employeeId1, employeeDateOfEmployment1, EmployeeType.Employee);
-        staffManager.Add("John", "Doe", employeeId2, employeeDateOfEmployment2, EmployeeType.Employee);
-        staffManager.Add("John", "Doe", salesId1, salesDateOfEmployment1, EmployeeType.Sales);
-
-        Assert.AreEqual(3, staffManager.EmployeeCount());
-
-        staffManager.Add("John", "Doe", salesId2, salesDateOfEmployment2, EmployeeType.Sales);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId3, employeeDateOfEmployment3, salesId2, EmployeeType.Employee);
-
-        Assert.AreEqual(5, staffManager.EmployeeCount());
-
-        staffManager.Add("John", "Doe", managerId1, managerDateOfEmployment1, EmployeeType.Manager);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId4, employeeDateOfEmployment4, managerId1, EmployeeType.Employee);
-        staffManager.TryAddSubordinate("John", "Doe", salesId3, salesDateOfEmployment3, managerId1, EmployeeType.Sales);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId5, employeeDateOfEmployment5, salesId3, EmployeeType.Employee);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId6, employeeDateOfEmployment6, salesId3, EmployeeType.Employee);
-
-        Assert.AreEqual(10, staffManager.EmployeeCount());
-
-        staffManager.Add("John", "Doe", managerId2, managerDateOfEmployment2, EmployeeType.Manager);
-        staffManager.TryAddSubordinate("John", "Doe", employeeId7, employeeDateOfEmployment7, managerId2, EmployeeType.Employee);
-
-        Assert.AreEqual(12, staffManager.EmployeeCount());
-
-        var result1 = staffManager.TryRemove(employeeId1);
-        var result2 = staffManager.TryRemove(employeeId2);
-
-        Assert.IsTrue(result1 && result2);
-        Assert.AreEqual(10, staffManager.EmployeeCount());
-
-        var result3 = staffManager.TryRemove(salesId2);
-
-        Assert.IsTrue(result3);
-        Assert.AreEqual(8, staffManager.EmployeeCount());
-
-        var result4 = staffManager.TryRemove(managerId1);
-
-        Assert.IsTrue(result4);
-        Assert.AreEqual(3, staffManager.EmployeeCount());
+        var count4 = staffManager.EmployeeCount();
+        
+        var result1 = staffManager.TryRemove(employees[0].Item1);
+        var result2 = staffManager.TryRemove(employees[1].Item1);
+        var count5 = staffManager.EmployeeCount();
+        
+        var result3 = staffManager.TryRemove(sales[1].Item1);
+        var count6 = staffManager.EmployeeCount();
+        
+        var result4 = staffManager.TryRemove(managers[0].Item1);
+        var count7 = staffManager.EmployeeCount();
+        
+        // Assert.
+        Assert.AreEqual(3, count1);
+        Assert.AreEqual(5, count2);
+        Assert.AreEqual(10, count3);
+        Assert.AreEqual(12, count4);
+        Assert.AreEqual(10, count5);
+        Assert.AreEqual(8, count6);
+        Assert.AreEqual(3, count7);
+        
+        Assert.IsTrue(result1 && result2 && result3 && result4);
     }
 }

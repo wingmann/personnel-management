@@ -1,4 +1,4 @@
-﻿namespace PersonnelManagementSystem.Employment.Interfaces;
+﻿namespace Employment.Interfaces;
 
 /// <summary>
 /// Employment manager in company.
@@ -8,24 +8,22 @@ public interface IStaffManager
     /// <summary>
     /// Add new employee.
     /// </summary>
-    /// <param name="firstName">First name.</param>
-    /// <param name="lastName">Last name.</param>
+    /// <param name="person">Full name.</param>
     /// <param name="id">Unique identifier.</param>
     /// <param name="dateOfEmployment">Date of employment.</param>
     /// <param name="type">Type of employee.</param>
-    void Add(string firstName, string lastName, string id, DateTime dateOfEmployment, EmployeeType type);
+    void Add(Person person, string id, DateTime dateOfEmployment, EmployeeType type);
 
     /// <summary>
     /// Add subordinate to management position.
     /// </summary>
-    /// <param name="firstName">First name.</param>
-    /// <param name="lastName">Last name.</param>
+    /// <param name="person">Full name.</param>
     /// <param name="superiorId">Superior person identifier.</param>
     /// <param name="id">Unique identifier.</param>
     /// <param name="dateOfEmployment">Date of employment.</param>
     /// <param name="type">Type of new employee.</param>
     /// <returns>Operation status.</returns>
-    bool TryAddSubordinate(string firstName, string lastName, string id, DateTime dateOfEmployment, string superiorId, EmployeeType type);
+    bool TryAddSubordinate(Person person, string id, DateTime dateOfEmployment, string superiorId, EmployeeType type);
 
     /// <summary>
     /// Try remove employee. Search in all subordinate lists.

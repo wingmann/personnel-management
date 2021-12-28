@@ -1,4 +1,4 @@
-﻿namespace PersonnelManagementSystem.Company.Interfaces;
+﻿namespace Company.Interfaces;
 
 /// <summary>
 /// Represents instance of organization.

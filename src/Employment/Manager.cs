@@ -1,11 +1,11 @@
 ﻿using System.Text;
+using Employment.Interfaces;
 
-namespace PersonnelManagementSystem.Employment;
+namespace Employment;
 
 public sealed class Manager : Sales
 {
-    public Manager(string firstName, string lastName, string id, DateTime dateOfEmployment)
-        : base(firstName, lastName, id, dateOfEmployment)
+    public Manager(IPerson person, string id, DateTime dateOfEmployment) : base(person, id, dateOfEmployment)
     {
         BaseSalary = 7000M;
     }
@@ -76,20 +76,19 @@ public sealed class Manager : Sales
     /// <summary>
     /// Add new subordinate to list.
     /// </summary>
-    /// <param name="firstName">First name.</param>
-    /// <param name="lastName">Last name.</param>
+    /// <param name="person">Full name.</param>
     /// <param name="id">Unique identifier.</param>
     /// <param name="dateOfEmployment">Date of employment.</param>
     /// <param name="type">Type of employee.</param>
-    public override void Add(string firstName, string lastName, string id, DateTime dateOfEmployment, EmployeeType type)
+    public override void Add(Person person, string id, DateTime dateOfEmployment, EmployeeType type)
     {
         switch (type)
         {
-            case Employment.EmployeeType.Employee:
-                Subordinates.Add(new Employee(firstName, lastName, id, dateOfEmployment));
+            case global::Employment.EmployeeType.Employee:
+                Subordinates.Add(new Employee(person, id, dateOfEmployment));
                 break;
-            case Employment.EmployeeType.Sales:
-                Subordinates.Add(new Sales(firstName, lastName, id, dateOfEmployment));
+            case global::Employment.EmployeeType.Sales:
+                Subordinates.Add(new Sales(person, id, dateOfEmployment));
                 break;
         }
     }
@@ -97,14 +96,13 @@ public sealed class Manager : Sales
     /// <summary>
     /// Add new employee as subordinate in subordinates list.
     /// </summary>
-    /// <param name="firstName">First name.</param>
-    /// <param name="lastName">Last name.</param>
+    /// <param name="person">Full name.</param>
     /// <param name="id">Unique identifier.</param>
     /// <param name="dateOfEmployment">Date of employment.</param>
     /// <param name="superiorId">Superior person identifier.</param>
     /// <param name="type">Type of employee.</param>
     /// <returns>Operation status.</returns>
-    public bool TryAddToInternal(string firstName, string lastName, string id, DateTime dateOfEmployment, string superiorId, EmployeeType type)
+    public bool TryAddToInternal(Person person, string id, DateTime dateOfEmployment, string superiorId, EmployeeType type)
     {
         foreach (var subordinate in Subordinates)
         {
@@ -113,7 +111,7 @@ public sealed class Manager : Sales
                 continue;
             }
             
-            sales.Add(firstName, lastName, id, dateOfEmployment, type);
+            sales.Add(person, id, dateOfEmployment, type);
             return true;
         }
 

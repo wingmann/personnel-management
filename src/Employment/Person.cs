@@ -1,6 +1,6 @@
-﻿using PersonnelManagementSystem.Employment.Interfaces;
+﻿using Employment.Interfaces;
 
-namespace PersonnelManagementSystem.Employment;
+namespace Employment;
 
 /// <summary>
 /// Person's data representation.

@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using PersonnelManagementSystem.Employment.Interfaces;
+using Employment.Interfaces;
 
-namespace PersonnelManagementSystem.Employment;
+namespace Employment;
 
 /// <summary>
 /// First level position and base class for management.
@@ -28,9 +28,9 @@ public class Employee : IEmployee
     /// </summary>
     public decimal BaseSalary { get; init; }
     
-    public Employee(string firstName, string lastName, string id, DateTime dateOfEmployment)
+    public Employee(IPerson person, string id, DateTime dateOfEmployment)
     {
-        Person = new Person(firstName, lastName);
+        Person = person;
         Id = id;
         BaseSalary = 3000M;
         DateOfEmployment = dateOfEmployment;

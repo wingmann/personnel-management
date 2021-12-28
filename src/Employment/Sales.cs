@@ -1,14 +1,13 @@
 ﻿using System.Text;
-using PersonnelManagementSystem.Employment.Interfaces;
+using Employment.Interfaces;
 
-namespace PersonnelManagementSystem.Employment;
+namespace Employment;
 
 public class Sales : Employee, IManagement
 {
     internal readonly IList<Employee> Subordinates;
 
-    public Sales(string firstName, string lastName, string id, DateTime dateOfEmployment)
-        : base(firstName, lastName, id, dateOfEmployment)
+    public Sales(IPerson person, string id, DateTime dateOfEmployment) : base(person, id, dateOfEmployment)
     {
         BaseSalary = 4500M;
         Subordinates = new List<Employee>();
@@ -53,16 +52,15 @@ public class Sales : Employee, IManagement
     /// <summary>
     /// Add new subordinate to list.
     /// </summary>
-    /// <param name="firstName">First name.</param>
-    /// <param name="lastName">Last name.</param>
+    /// <param name="person">Full name.</param>
     /// <param name="id">Unique identifier.</param>
     /// <param name="dateOfEmployment">Date of employment.</param>
     /// <param name="type">Type of employee.</param>
-    public virtual void Add(string firstName, string lastName, string id, DateTime dateOfEmployment, EmployeeType type)
+    public virtual void Add(Person person, string id, DateTime dateOfEmployment, EmployeeType type)
     {
-        if (type is Employment.EmployeeType.Employee)
+        if (type is global::Employment.EmployeeType.Employee)
         {
-            Subordinates.Add(new Employee(firstName, lastName, id, dateOfEmployment));
+            Subordinates.Add(new Employee(person, id, dateOfEmployment));
         }
     }
 

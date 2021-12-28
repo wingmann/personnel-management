@@ -1,4 +1,4 @@
-﻿namespace PersonnelManagementSystem.Employment;
+﻿namespace Employment;
 
 /// <summary>
 /// Salary calculation manager.

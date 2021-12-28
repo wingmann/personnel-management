@@ -1,4 +1,4 @@
-﻿namespace PersonnelManagementSystem.Employment.Interfaces;
+﻿namespace Employment.Interfaces;
 
 /// <summary>
 /// Person's data representation.

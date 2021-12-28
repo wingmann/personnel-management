@@ -1,4 +1,4 @@
-﻿namespace PersonnelManagementSystem.CommandHandler.Interfaces;
+﻿namespace CommandHandler.Interfaces;
 
 /// <summary>
 /// Console command processor.

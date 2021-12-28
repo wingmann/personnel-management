@@ -1,11 +1,11 @@
 ﻿using System.Text;
-using PersonnelManagementSystem.CommandHandler;
-using PersonnelManagementSystem.CommandHandler.Interfaces;
-using PersonnelManagementSystem.Company.Interfaces;
-using PersonnelManagementSystem.Employment;
-using PersonnelManagementSystem.Employment.Interfaces;
+using CommandHandler;
+using CommandHandler.Interfaces;
+using Company.Interfaces;
+using Employment;
+using Employment.Interfaces;
 
-namespace PersonnelManagementSystem.Company;
+namespace Company;
 
 public class Company : ICompany
 {
@@ -83,18 +83,24 @@ public class Company : ICompany
                 Console.WriteLine($"Total employees salary: {GetAllSalary()}");
                 break;
             case Operation.AddEmployee:
-                AddEmployee(Input("First name"), Input("Last name"), "employee");
+                AddEmployee(new Person(Input("First name"), Input("Last name")), EmployeeType.Employee);
                 break;
             case Operation.AddSales:
-                AddEmployee(Input("First name"), Input("Last name"), "sales");
+                AddEmployee(new Person(Input("First name"), Input("Last name")), EmployeeType.Sales);
                 break;
             case Operation.AddManager:
-                AddEmployee(Input("First name"), Input("Last name"), "manager");
+                AddEmployee(new Person(Input("First name"), Input("Last name")), EmployeeType.Manager);
                 break;
             case Operation.AddSubordinateEmployee:
-                return TryAddSubordinate(Input("First name"), Input("Last name"), Input("Superior ID"), "employee");
+                return TryAddSubordinate(
+                    new Person(Input("First name"), Input("Last name")),
+                    Input("Superior ID"),
+                    EmployeeType.Employee);
             case Operation.AddSubordinateSales:
-                return TryAddSubordinate(Input("First name"), Input("Last name"), Input("Superior ID"), "sales");
+                return TryAddSubordinate(
+                    new Person(Input("First name"), Input("Last name")),
+                    Input("Superior ID"),
+                    EmployeeType.Sales);
             case Operation.RemoveEmployee:
             {
                 if (!TryRemove(Input("ID")))
@@ -135,32 +141,31 @@ public class Company : ICompany
         }
     }
 
-    private string GenerateId() => Guid.NewGuid().ToString();
+    private static string GenerateId() => Guid.NewGuid().ToString();
 
-    private void AddEmployee(string firstName, string lastName, string type)
+    private void AddEmployee(Person person, EmployeeType type)
     {
-        switch (type.ToUpper())
+        switch (type)
         {
-            case "EMPLOYEE":
-                _staffManager.Add(firstName, lastName, GenerateId(), DateTime.Today, EmployeeType.Employee);
+            case EmployeeType.Employee:
+                _staffManager.Add(person, GenerateId(), DateTime.Today, type);
                 break;
-            case "SALES":
-                _staffManager.Add(firstName, lastName, GenerateId(), DateTime.Today, EmployeeType.Sales);
+            case EmployeeType.Sales:
+                _staffManager.Add(person, GenerateId(), DateTime.Today, type);
                 break;
-            case "MANAGER":
-                _staffManager.Add(firstName, lastName, GenerateId(), DateTime.Today, EmployeeType.Manager);
+            case EmployeeType.Manager:
+                _staffManager.Add(person, GenerateId(), DateTime.Today, type);
                 break;
         }
     }
 
-    private bool TryAddSubordinate(string firstName, string lastName, string superiorId, string type)
+    private bool TryAddSubordinate(Person person, string superiorId, EmployeeType type)
     {
         var id = GenerateId();
-
-        return type.ToUpper() switch
+        return type switch
         {
-            "EMPLOYEE" => _staffManager.TryAddSubordinate(firstName, lastName, id, DateTime.Today, superiorId, EmployeeType.Employee),
-            "SALES" => _staffManager.TryAddSubordinate(firstName, lastName, id, DateTime.Today, superiorId, EmployeeType.Sales),
+            EmployeeType.Employee => _staffManager.TryAddSubordinate(person, id, DateTime.Today, superiorId, type),
+            EmployeeType.Sales => _staffManager.TryAddSubordinate(person, id, DateTime.Today, superiorId, type),
             _ => false
         };
     }

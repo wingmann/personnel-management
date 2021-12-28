@@ -1,6 +1,6 @@
-﻿using PersonnelManagementSystem.CommandHandler.Interfaces;
+﻿using CommandHandler.Interfaces;
 
-namespace PersonnelManagementSystem.CommandHandler;
+namespace CommandHandler;
 
 /// <summary>
 /// Console command processor.
